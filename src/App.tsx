@@ -4,9 +4,8 @@ import { Loading } from "react-vant";
 
 const Index = lazy(() => import("./pages/index"));
 const Login = lazy(() => import("./pages/user/login"));
-const Sleepv2 = lazy(() => import("./pages/sleepv2"));
-const DuoyuanTrend = lazy(() => import("./pages/duoyuan-trend"));
-const DuoyuanReport = lazy(() => import("./pages/duoyuan-report"));
+const ReportList = lazy(() => import("./pages/report/list"));
+const ReportDetail = lazy(() => import("./pages/report/detail"));
 
 function App() {
   return (
@@ -29,9 +28,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/sleepv2" element={<Sleepv2 />} />
-          <Route path="/duoyuan-trend" element={<DuoyuanTrend />} />
-          <Route path="/duoyuan-report" element={<DuoyuanReport />} />
+          <Route path="/reportList" element={<ReportList />} />
+          <Route path="/reportDetail" element={<ReportDetail />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

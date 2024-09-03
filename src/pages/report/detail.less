@@ -1,13 +1,40 @@
-:root {
-  --primary-color: #11bd8c;
-  --rv-primary-color: var(--primary-color);
-}
-
 .index {
   padding-top: 20px;
   text-align: center;
   box-sizing: border-box;
   background: linear-gradient(180deg, #e7f8e7 0%, rgba(222, 246, 235, 0) 100%);
+}
+
+.device-box {
+  font-size: 16px;
+  color: #1c2023;
+  .rv-input {
+    height: 45px;
+    border: 1px solid var(--primary-color);
+    border-radius: 10px;
+    padding: 0 12px;
+    margin-bottom: 20px;
+    width: 230px;
+  }
+  .rv-cell::after {
+    display: none;
+  }
+  .other {
+    .rv-input {
+      width: 100%;
+    }
+  }
+  .rv-cell {
+    padding: 0;
+  }
+  .tip {
+    font-weight: 400;
+    font-size: 14px;
+    color: #999999;
+    margin-left: 20px;
+    white-space: nowrap;
+    transform: translateY(-10px);
+  }
 }
 
 .modeBox {
@@ -75,7 +102,8 @@
       text-align: left;
       color: #666666;
       display: inline-block;
-      min-width: 80px;
+      min-width: 120px;
+      margin-right: 10px;
     }
     .value {
       color: #000000;
@@ -96,12 +124,24 @@
   justify-content: center;
   align-items: center;
   background-color: #fff;
+  gap: 20px;
   bottom: 0;
   z-index: 1;
   width: 100vw;
   left: 0;
 }
 .primary-btn {
+  width: 256px;
+  height: 40px;
+  border-radius: 18px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 40px;
+  color: #fff;
+  background-color: var(--primary-color);
+}
+
+.def-btn {
   width: 256px;
   height: 40px;
   border-radius: 18px;
@@ -182,5 +222,52 @@
       text-align: center;
       border-right: 1px solid #666;
     }
+  }
+}
+
+.pop-box {
+  padding: 0 12px;
+  height: calc(100% - 120px);
+  overflow: hidden;
+  overflow-y: auto;
+  .pop-item {
+    .label {
+      color: #1c2023;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    border-bottom: 1px solid #ddd;
+    padding: 6px 0;
+    margin-bottom: 10px;
+  }
+}
+
+.ans-box {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  align-items: flex-start;
+  .center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px;
+    height: 30px;
+  }
+  .ans-title {
+    font-weight: 500;
+    font-size: 16px;
+    color: #3d3d3d;
+    margin-top: 10px;
+    margin-bottom: 4px;
+  }
+  .ans-img {
+    height: 57px;
+    width: 93px;
+  }
+  .ans-mark {
+    font-size: 14px;
+    color: #999999;
   }
 }

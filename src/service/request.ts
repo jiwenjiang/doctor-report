@@ -1,6 +1,6 @@
 import { Notify } from 'react-vant';
 
-const baseUrl = `https://etsjfypg-app.xasetyy.com:1120`; // 测试
+const baseUrl = `https://platform-test.fushuhealth.com/recovery-web`; // 测试
 // const baseUrl = `https://ybsyapp.enzemed.com:8501/recovery-wx`;
 
 type httpType = {
@@ -18,7 +18,7 @@ const handleOps = ({
   needLogin = true,
   ...options
 }: httpType) => {
-  const token = sessionStorage.token;
+  const token = localStorage.token;
   if (method === 'GET') {
     const list = [];
     for (const key in data) {
@@ -65,8 +65,8 @@ const request = async (params: httpType) => {
   const data = await res.json();
   if (data && !data.success) {
     if (data.code === 2 && needLogin) {
-      sessionStorage.token = '';
-      sessionStorage.user = '';
+      localStorage.token = '';
+      localStorage.user = '';
       // window.location.href = `/?returnUrl=${encodeURIComponent(window.location.href)}`;
     }
     Notify.show({ type: 'danger', message: data.message });

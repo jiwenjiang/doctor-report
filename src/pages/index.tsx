@@ -24,7 +24,7 @@ function App() {
   const chartData = useRef<any>({});
 
   useEffect(() => {
-    sessionStorage.token =
+    localStorage.token =
       GetQueryString("token") ??
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJyb2xlTmFtZSI6Im9wX0kxNUFtVjRxeXAyTF9udmFtbzYxQi1uZDAiLCJ1c2VySWQiOiI0MDUiLCJwbGF0Zm9ybUNvZGUiOjJ9.G4iLwIXnKHVIFtOq-m_yxwXQdmw60YaDc5fFBqdE56yDUdYYVIAT0lbK5TU3A3gvdTJ8I90hCTRJb_IDya0Wog";
     getType();

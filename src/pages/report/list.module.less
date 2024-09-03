@@ -1,0 +1,135 @@
+.box {
+  height: 100vh;
+  background-color: #f9fbfc;
+  --rv-border-radius-sm: 6px;
+}
+.reply {
+  height: 38px;
+  margin: 8px;
+  margin-bottom: 0;
+  background: #ffffff;
+  box-shadow: 2px 2px 4px 0px rgba(24, 24, 24, 0.05);
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.cardBox {
+  width: 100vw;
+  height: 248px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ffffff;
+}
+.card {
+  width: calc(100vw - 24px);
+  height: 224px;
+  background: #ffffff;
+  box-shadow: 0px 4px 15px 0px #c6d0d3;
+  border-radius: 14px 14px 14px 14px;
+  padding: 14px 12px;
+  .cardhead {
+    display: flex;
+    justify-content: space-between;
+    .name {
+      font-weight: 600;
+      font-size: 16px;
+      color: #000000;
+    }
+    .gender {
+      width: 14px;
+      height: 14px;
+    }
+    .status {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 5px;
+    }
+  }
+  .title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #181818;
+    line-height: 19px;
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+  }
+  .report {
+    text-decoration: underline;
+    color: var(--primary-color);
+    .arrow {
+      color: #7f7f7f;
+    }
+  }
+  .kv {
+    display: flex;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+  .k {
+    color: #606972;
+    min-width: 80px;
+  }
+  .v {
+    color: #1c2023;
+  }
+  .line {
+    border-top: 1px dashed #dddddd;
+    width: 100%;
+  }
+  .btnBox {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 12px;
+  }
+  .trainingTime {
+    font-size: 13px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #7f7f7f;
+  }
+}
+.popBox {
+  padding: 8px;
+  padding-bottom: 0;
+  background-color: #f9fbfc;
+}
+.innerBox {
+  background: #ffffff;
+  box-shadow: 2px 2px 4px 0px rgba(24, 24, 24, 0.05);
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  height: 292px;
+  overflow-y: auto;
+  padding: 0 15px;
+}
+.listBox {
+  height: 54px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-top: 8px;
+  position: relative;
+  .listTitle {
+    font-size: 13px;
+    color: #181818;
+    margin-bottom: 4px;
+  }
+  .listDesc {
+    font-size: 13px;
+    color: #7f7f7f;
+  }
+  .arrow {
+    position: absolute;
+    right: 0;
+    top: 20px;
+    color: #7f7f7f;
+  }
+}
+
+.searchTxt {
+  font-size: 16px;
+  color: #00754a;
+}

@@ -10,7 +10,7 @@ function App() {
   const [data, setData] = useState<any>({});
 
   useEffect(() => {
-    sessionStorage.token =
+    localStorage.token =
       GetQueryString("token") ??
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJyb2xlTmFtZSI6Im80V2dMNUxTakdJdGRYUnc1S3IzcUh6U1VIZkUiLCJ1c2VySWQiOiIxIiwicGxhdGZvcm1Db2RlIjoyfQ.LMeqYmcS73AdOYHCgdwFT-oRJbRnXi4aobqR1uY7jccBPWeTyeDk4ufiKqt7UUU4-PF33zA34DLC4V9wju8LPg";
     getType();
