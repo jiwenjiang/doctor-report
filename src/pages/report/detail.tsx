@@ -74,8 +74,20 @@ function App() {
   };
 
   const onFinish3 = async () => {
-    const result = await form2.validateFields();
-    console.log("🚀 ~ onFinish3 ~ result:", result);
+    const result = form2.getFieldsValue();
+    const params = {
+      id,
+      ...result,
+      draft: true,
+    };
+    await request({
+      url: "/scale/record/updateRemark",
+      method: "POST",
+      data: params,
+    });
+    getDetail();
+    Notify.show({ type: "success", message: "保存成功" });
+    console.log("🚀 ~ onFinish3 ~ result:", params);
   };
 
   const getDetail = async () => {
@@ -152,9 +164,13 @@ function App() {
 
   const shenhe = () => {};
 
+  const back = () => {
+    window.history.back();
+  };
+
   return (
     <div>
-      <NavBar title="报告详情" onClickLeft={() => window.history.back()} />
+      <NavBar title="报告详情" onClickLeft={() => back()} />
       <div className="index" style={{ padding: 12, paddingBottom: 60 }}>
         <div className="card">
           <div className="title">
@@ -312,18 +328,22 @@ function App() {
                 name="obviouslyBehind"
                 label="1.视频中表现出来有姿势运动"
               >
-                <Input disabled={!editable} placeholder="非必填，不填则无" />{" "}
-                <span className="tip">明显落后</span>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Input disabled={!editable} placeholder="非必填，不填则无" />{" "}
+                  <span className="tip">明显落后</span>
+                </div>
               </Form.Item>
               <Form.Item
                 name="tendencyBehind"
                 label="2.视频中表现出来有姿势运动"
               >
-                <Input disabled={!editable} placeholder="非必填，不填则无" />{" "}
-                <span className="tip">落后倾向</span>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Input disabled={!editable} placeholder="非必填，不填则无" />{" "}
+                  <span className="tip">落后倾向</span>
+                </div>
               </Form.Item>
               <Form.Item name="suggests" label="3.其他" className="other">
-                <Input disabled={!editable} placeholder="非必填，不填则无" />{" "}
+                <Input disabled={!editable} placeholder="非必填，不填则无" />
               </Form.Item>
             </Form>
           </div>
@@ -334,7 +354,7 @@ function App() {
             round
             type="default"
             style={{ width: "100px" }}
-            onClick={close}
+            onClick={back}
           >
             返回
           </Button>
@@ -346,14 +366,14 @@ function App() {
           >
             保存
           </Button>
-          <Button
+          {/* <Button
             round
             type="primary"
             style={{ width: "100px" }}
             onClick={shenhe}
           >
             提交审核
-          </Button>
+          </Button> */}
         </div>
         <Popup
           visible={showVideo}

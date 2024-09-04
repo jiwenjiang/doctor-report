@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Loading } from "react-vant";
 
-const Index = lazy(() => import("./pages/index"));
+const Index = lazy(() => import("./pages/report/list"));
 const Login = lazy(() => import("./pages/user/login"));
 const ReportList = lazy(() => import("./pages/report/list"));
 const ReportDetail = lazy(() => import("./pages/report/detail"));

@@ -4,9 +4,9 @@ import request from "@/service/request";
 import { findItem } from "@/service/utils";
 import female from "@/static/imgs/female.png";
 import male from "@/static/imgs/male.png";
-import React, { Fragment, useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { NavBar, Popup, Search, Tabs } from "react-vant";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { NavBar, Search, Tabs } from "react-vant";
 import styles from "./list.module.less";
 
 const tabData = [
@@ -33,16 +33,20 @@ const tabData = [
 ];
 
 export default function App() {
-  const [show, setShow] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [data, setData] = useState([]);
-  const [markList, setMarkList] = useState([]);
   const total = useRef(1);
   const params = useRef({ pageNo: 1, pageSize: 10, patientId: null });
+  const [condition, setCondition] = useState({
+    status:
+      localStorage.user &&
+      JSON.parse(localStorage.user)?.roleName === "ROLE_DOCTOR"
+        ? 15
+        : 1,
+    word: "",
+  });
   const isLoading = useRef(false);
   const [loadingText, setLoadingText] = useState("正在加载中");
-  const [currentVideo, setcurrentVideo] = useState("");
   const navigate = useNavigate();
 
   const onLoad = () => {
@@ -53,10 +57,10 @@ export default function App() {
     }
   };
 
-  const getList = async (init?: boolean) => {
+  const getList = async (init?: boolean, extendParams = {}) => {
     const res = await request({
       url: "/scale/record/list",
-      data: params.current,
+      data: { ...params.current, ...condition, ...extendParams },
     });
     total.current = res.data?.page?.totalPage;
     if (total.current === params.current.pageNo) {
@@ -66,62 +70,59 @@ export default function App() {
     isLoading.current = false;
   };
 
-  const getMarkList = async () => {
-    const res = await request({
-      url: "/remark/list",
-    });
-    setMarkList(res.data);
-  };
-
   useEffect(() => {
     if (localStorage.user) {
       const user = JSON.parse(localStorage.user);
+
       params.current.patientId = user.id;
       getList(true);
-      //   getMarkList();
     } else {
-      //   getMarkList();
+      navigate("/login");
     }
-  }, []);
-
-  const open = () => {
-    setShow(true);
-  };
+  }, [condition]);
 
   const cb = async (data) => {
     navigate(`/reportDetail?id=${data.id}&editable=1`);
-  };
-
-  const choose = async (v) => {
-    await request({
-      url: "/remark/read",
-      data: { id: v.id },
-    });
-    navigate(`/report/${v.recordId}`);
   };
 
   const toReport = async (v) => {
     navigate(`/report/${v.id}`);
   };
 
-  const search = () => {};
+  const search = () => {
+    setCondition({ ...condition, word: keyword });
+  };
+
+  const changeTab = (e) => {
+    setCondition({ ...condition, status: e });
+  };
+
+  const searchChange = (e) => {
+    console.log("🚀 ~ searchChange ~ e:", e);
+    setKeyword(e);
+  };
+
   return (
     <div className={styles.box}>
       <NavBar title="报告列表" onClickLeft={() => window.history.back()} />
       <Search
         showAction
-        actionText={
+        action={
           <div onClick={() => search()} className={styles.searchTxt}>
             搜索
           </div>
         }
         value={keyword}
-        onChange={setKeyword}
+        onChange={searchChange}
         placeholder="请输入搜索关键词"
       />
-      <Tabs>
+      <Tabs active={condition.status} onChange={changeTab}>
         {tabData.map((item) => (
-          <Tabs.TabPane key={item.value} title={item.label}></Tabs.TabPane>
+          <Tabs.TabPane
+            key={item.value}
+            name={item.value}
+            title={item.label}
+          ></Tabs.TabPane>
         ))}
       </Tabs>
       <div>
@@ -133,45 +134,11 @@ export default function App() {
           loadingText={loadingText}
         />
       </div>
-      <Popup
-        visible={show}
-        position="bottom"
-        style={{ height: 300 }}
-        onClose={() => setShow(false)}
-      >
-        <div className={styles.popBox}>
-          <div className={styles.innerBox}>
-            {markList.map((v, i) => (
-              <Fragment key={i}>
-                <div onClick={() => choose(v)}>
-                  <Link to={`/report/${v.recordId}`}>
-                    <ListItem {...v} />
-                  </Link>
-                </div>
-              </Fragment>
-            ))}
-          </div>
-        </div>
-      </Popup>
-      <Popup
-        visible={showVideo}
-        destroyOnClose={true}
-        onClose={() => setShowVideo(false)}
-      >
-        {/* <Video
-          sources={[
-            {
-              src: currentVideo,
-            },
-          ]}
-        ></Video> */}
-      </Popup>
     </div>
   );
 }
 
 function Card(data, cb, choose) {
-  console.log("🚀 ~ Card ~ data:", data);
   const onCard = () => {
     cb?.(data);
   };
@@ -181,7 +148,6 @@ function Card(data, cb, choose) {
   };
 
   const item = findItem(reportEnum, data.progressStatusByte);
-  console.log("🚀 ~ Card ~ item:", item);
 
   return (
     <div className={styles.cardBox}>

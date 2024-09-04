@@ -1,23 +1,27 @@
 import request from "@/service/request";
 import { GetQueryString } from "@/service/utils";
 import loginBg from "@/static/imgs/login-bg.png";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Input } from "react-vant";
+import { Input, Notify, Picker } from "react-vant";
 import styles from "./login.module.less";
 
 function App() {
-  const [form] = Form.useForm();
   const [isPsw, setIsPsw] = useState(true);
   const navigate = useNavigate();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [columns, setColumns] = useState([]);
+  const [organization, setOrganization] = useState<any>({});
 
   const onFinish = async (values) => {
     const returnUrl = GetQueryString("returnUrl");
+    if (!phone || !password || !organization.id) {
+      Notify.show({ type: "warning", message: "请填写登录信息" });
+    }
     const msg = await request({
-      url: "/login",
-      data: { phone, password },
+      url: "/h5/login",
+      data: { phone, password, organizationId: organization.id },
       method: "POST",
       needLogin: false,
     });
@@ -32,11 +36,24 @@ function App() {
     }
   };
 
-  useEffect(() => {}, []);
-
-  const changePsw = () => {
-    setIsPsw(!isPsw);
+  const searchOrg = async () => {
+    if (phone) {
+      const res = await request({
+        url: "/user/phone/organizations",
+        data: {
+          phone,
+        },
+      });
+      setColumns(res.data || []);
+      console.log("🚀 ~ searchOrg ~ res:", res);
+    }
   };
+
+  const confirm = (_e, v) => {
+    console.log("🚀 ~ confirm ~ e:", v);
+    setOrganization(v);
+  };
+
   return (
     <div className={styles.box}>
       <div className={styles.imgBox}>
@@ -49,6 +66,7 @@ function App() {
             <Input
               value={phone}
               onChange={(text) => setPhone(text)}
+              onBlur={(text) => searchOrg()}
               placeholder="请输入用户名"
               clearable
             />
@@ -62,6 +80,30 @@ function App() {
               placeholder="请输入密码"
               clearable
             />
+          </div>
+          <div className={styles.label}>所属机构</div>
+          <div className={styles.value}>
+            <Picker
+              popup={{
+                round: true,
+              }}
+              value={organization.id}
+              title="选择所属机构"
+              columns={columns}
+              onConfirm={confirm}
+              columnsFieldNames={{ text: "name", value: "id" }}
+            >
+              {(val: string, _, actions) => {
+                return (
+                  <Input
+                    value={organization.name}
+                    onClick={() => actions.open()}
+                    placeholder="请选择机构"
+                    readOnly
+                  />
+                );
+              }}
+            </Picker>
           </div>
           {/* <div className={styles.label}>密码</div>
           <div className={styles.value}>
