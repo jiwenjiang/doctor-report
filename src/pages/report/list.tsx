@@ -6,7 +6,16 @@ import female from "@/static/imgs/female.png";
 import male from "@/static/imgs/male.png";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { NavBar, Search, Tabs } from "react-vant";
+import {
+  Dialog,
+  Loading,
+  NavBar,
+  Overlay,
+  Popup,
+  Search,
+  Tabs,
+} from "react-vant";
+import Audit from "./comps/audit";
 import styles from "./list.module.less";
 
 const tabData = [
@@ -34,7 +43,10 @@ const tabData = [
 
 export default function App() {
   const [keyword, setKeyword] = useState("");
+  const [show, setShow] = useState(false);
   const [data, setData] = useState([]);
+  const [auditShow, setAuditShow] = useState(false);
+  const [pdf, setPdf] = useState({ show: false, src: [] });
   const total = useRef(1);
   const params = useRef({ pageNo: 1, pageSize: 10, patientId: null });
   const [condition, setCondition] = useState({
@@ -48,6 +60,7 @@ export default function App() {
   const isLoading = useRef(false);
   const [loadingText, setLoadingText] = useState("正在加载中");
   const navigate = useNavigate();
+  const [row, setRow] = useState<any>({});
 
   const onLoad = () => {
     if (total.current > params.current.pageNo && !isLoading.current) {
@@ -81,12 +94,43 @@ export default function App() {
     }
   }, [condition]);
 
-  const cb = async (data) => {
-    navigate(`/reportDetail?id=${data.id}&editable=1`);
+  const cb = async (data, type) => {
+    setRow(data);
+    if (type === "detail") {
+      navigate(`/reportDetail?id=${data.id}`);
+    }
+    if (type === "edit") {
+      navigate(`/reportDetail?id=${data.id}&editable=1`);
+    }
+    if (type === "audit") {
+      setAuditShow(true);
+    }
+    if (type === "send") {
+      try {
+        await Dialog.confirm({
+          title: "发送用户",
+          message: "一旦发送报告将无法修改，确认发送给用户？",
+        });
+        await request({ url: "/scale/report/send", data: { id: data.id } });
+        getList(true);
+      } catch (error) {
+        console.log("cancel");
+      }
+    }
   };
 
   const toReport = async (v) => {
-    navigate(`/report/${v.id}`);
+    setShow(true);
+    const res = await request({
+      url: "/scale/report/picture",
+      data: { id: v?.id },
+    });
+
+    setPdf({ show: true, src: res.data });
+    setShow(false);
+    console.log("🚀 ~ toReport ~ res:", res);
+
+    // navigate(`/report/${v.id}`);
   };
 
   const search = () => {
@@ -94,12 +138,24 @@ export default function App() {
   };
 
   const changeTab = (e) => {
+    params.current.pageNo = 1;
     setCondition({ ...condition, status: e });
   };
 
   const searchChange = (e) => {
-    console.log("🚀 ~ searchChange ~ e:", e);
     setKeyword(e);
+  };
+
+  const confirmAudit = async (params) => {
+    const res = await request({
+      url: "/scale/report/review",
+      method: "POST",
+      data: { ...params, id: row.id },
+    });
+    if (res.success) {
+      getList(true);
+      setAuditShow(false);
+    }
   };
 
   return (
@@ -134,13 +190,46 @@ export default function App() {
           loadingText={loadingText}
         />
       </div>
+      <Popup
+        visible={pdf.show}
+        destroyOnClose
+        position="bottom"
+        closeable
+        style={{ height: "100%" }}
+        onClose={() => setPdf({ show: false, src: [] })}
+      >
+        <div style={{ paddingTop: 45, width: "100%", height: "auto" }}>
+          {pdf?.src?.map((c, i) => (
+            <img key={i} src={c} width="100%" height="100%"></img>
+          ))}
+        </div>
+      </Popup>
+      <Overlay
+        style={{
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        visible={show}
+        onClick={() => setShow(false)}
+      >
+        <Loading type="ball" vertical>
+          报告生成中...
+        </Loading>
+      </Overlay>
+      <Audit
+        show={auditShow}
+        onClose={() => setAuditShow(false)}
+        onConfirm={confirmAudit}
+      />
     </div>
   );
 }
 
 function Card(data, cb, choose) {
-  const onCard = () => {
-    cb?.(data);
+  const onCard = (type) => {
+    cb?.(data, type);
   };
 
   const chooseFn = async () => {
@@ -150,7 +239,7 @@ function Card(data, cb, choose) {
   const item = findItem(reportEnum, data.progressStatusByte);
 
   return (
-    <div className={styles.cardBox}>
+    <div className={styles.cardBox} onClick={() => onCard("detail")}>
       <div className={styles.card}>
         <div className={styles.cardhead}>
           <div className={styles.name}>
@@ -189,25 +278,40 @@ function Card(data, cb, choose) {
         </div>
         <div className={styles.line}></div>
         <div className={styles.btnBox}>
-          <div className="rbtn" style={{ marginRight: 10 }} onClick={onCard}>
-            填写报告
-          </div>
           <div className="rbtn-fill" onClick={chooseFn}>
             查看报告
           </div>
+          {[reportEnum.WEIPINGGU.value, reportEnum.BUTONGGUO.value].includes(
+            data.progressStatusByte
+          ) && (
+            <div
+              className="rbtn"
+              style={{ marginRight: 10 }}
+              onClick={() => onCard("edit")}
+            >
+              填写报告
+            </div>
+          )}
+          {[reportEnum.DAISHENHE.value].includes(data.progressStatusByte) && (
+            <div
+              className="rbtn"
+              style={{ marginRight: 10 }}
+              onClick={() => onCard("audit")}
+            >
+              审核报告
+            </div>
+          )}
+          {[reportEnum.DAIFASONG.value].includes(data.progressStatusByte) && (
+            <div
+              className="rbtn"
+              style={{ marginRight: 10 }}
+              onClick={() => onCard("send")}
+            >
+              发送报告
+            </div>
+          )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function ListItem(v) {
-  return (
-    <div className={styles.listBox}>
-      <div className={styles.listTitle}>
-        {v.doctorName}回复了{v.trainingTime}的{v.planName}
-      </div>
-      <div className={styles.listDesc}>{v.created}</div>
     </div>
   );
 }

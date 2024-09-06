@@ -1,22 +1,25 @@
 import Video from "@/comps/Video";
 import { reportBtnAuth } from "@/hooks/reportBtn";
+import { reportEnum } from "@/service/const";
 import request from "@/service/request";
 import { GetQueryString } from "@/service/utils";
 import { PlayCircleO } from "@react-vant/icons";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import {
-    Button,
-    DatetimePicker,
-    Form,
-    Input,
-    NavBar,
-    Notify,
-    Picker,
-    Popup,
-    Radio,
-    Tag,
+  Button,
+  DatetimePicker,
+  Dialog,
+  Form,
+  Input,
+  NavBar,
+  Notify,
+  Picker,
+  Popup,
+  Radio,
+  Tag,
 } from "react-vant";
+import Audit from "./comps/audit";
 import "./detail.less";
 
 const ops = [
@@ -38,6 +41,7 @@ function App() {
   const [oriQes, setOriQes] = useState([]);
   const [showVideo, setShowVideo] = useState(false);
   const [currentVideo, setCurrentVideo] = useState(null);
+  const [auditShow, setAuditShow] = useState(false);
 
   const stage = Form.useWatch("stage", form1);
 
@@ -162,10 +166,38 @@ function App() {
     setCurrentVideo(v.url);
   };
 
-  const shenhe = () => {};
-
   const back = () => {
     window.history.back();
+  };
+
+  const operate = async (type) => {
+    if (type === "audit") {
+      setAuditShow(true);
+    }
+    if (type === "send") {
+      try {
+        await Dialog.confirm({
+          title: "发送用户",
+          message: "一旦发送报告将无法修改，确认发送给用户？",
+        });
+        await request({ url: "/scale/report/send", data: { id: data.id } });
+        getDetail();
+      } catch (error) {
+        console.log("cancel");
+      }
+    }
+  };
+
+  const confirmAudit = async (params) => {
+    const res = await request({
+      url: "/scale/report/review",
+      method: "POST",
+      data: { ...params, id: data.id },
+    });
+    if (res.success) {
+      getDetail();
+      setAuditShow(false);
+    }
   };
 
   return (
@@ -358,14 +390,39 @@ function App() {
           >
             返回
           </Button>
-          <Button
-            round
-            type="primary"
-            style={{ width: "100px" }}
-            onClick={onFinish3}
-          >
-            保存
-          </Button>
+          {[reportEnum.WEIPINGGU.value, reportEnum.BUTONGGUO.value].includes(
+            data.progressStatusCode
+          ) && (
+            <Button
+              round
+              type="primary"
+              style={{ width: "100px" }}
+              onClick={onFinish3}
+            >
+              保存
+            </Button>
+          )}
+
+          {[reportEnum.DAISHENHE.value].includes(data.progressStatusCode) && (
+            <Button
+              round
+              type="primary"
+              style={{ width: "100px" }}
+              onClick={() => operate("audit")}
+            >
+              审核报告
+            </Button>
+          )}
+          {[reportEnum.DAIFASONG.value].includes(data.progressStatusCode) && (
+            <Button
+              round
+              type="primary"
+              style={{ width: "100px" }}
+              onClick={() => operate("send")}
+            >
+              发送报告
+            </Button>
+          )}
           {/* <Button
             round
             type="primary"
@@ -565,6 +622,11 @@ function App() {
           </div>
         </Popup>
       </div>
+      <Audit
+        show={auditShow}
+        onClose={() => setAuditShow(false)}
+        onConfirm={confirmAudit}
+      />
     </div>
   );
 }
