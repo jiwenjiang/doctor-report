@@ -239,7 +239,7 @@ function App() {
           </div>
           <div className="row">
             <span className="label">手机号</span>
-            <span className="value">{data.testTime}</span>
+            <span className="value">{data.phone}</span>
           </div>
           <div className="row">
             <span className="label">门诊号码</span>

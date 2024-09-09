@@ -1,3 +1,4 @@
+import MineCenter from "@/comps/Mine";
 import VList from "@/comps/VList";
 import { reportEnum } from "@/service/const";
 import request from "@/service/request";
@@ -94,7 +95,9 @@ export default function App() {
     }
   }, [condition]);
 
-  const cb = async (data, type) => {
+  const cb = async (data, type, e) => {
+    console.log("🚀 ~ cb ~ e:", type);
+    e.stopPropagation();
     setRow(data);
     if (type === "detail") {
       navigate(`/reportDetail?id=${data.id}`);
@@ -160,7 +163,11 @@ export default function App() {
 
   return (
     <div className={styles.box}>
-      <NavBar title="报告列表" onClickLeft={() => window.history.back()} />
+      <NavBar
+        title="报告列表"
+        onClickLeft={() => window.history.back()}
+        rightText={<MineCenter />}
+      />
       <Search
         showAction
         action={
@@ -185,7 +192,7 @@ export default function App() {
         <VList
           renderFn={(d) => Card(d, cb, toReport)}
           data={data}
-          itemSize={248}
+          itemSize={278}
           onLoad={onLoad}
           loadingText={loadingText}
         />
@@ -228,8 +235,8 @@ export default function App() {
 }
 
 function Card(data, cb, choose) {
-  const onCard = (type) => {
-    cb?.(data, type);
+  const onCard = (type, e) => {
+    cb?.(data, type, e);
   };
 
   const chooseFn = async () => {
@@ -239,24 +246,25 @@ function Card(data, cb, choose) {
   const item = findItem(reportEnum, data.progressStatusByte);
 
   return (
-    <div className={styles.cardBox} onClick={() => onCard("detail")}>
+    <div className={styles.cardBox}>
       <div className={styles.card}>
         <div className={styles.cardhead}>
-          <div className={styles.name}>
-            {data.userName}
-            &nbsp;
-            <img
-              className={styles.gender}
-              src={data.gender === 1 ? male : female}
-              alt=""
-            />
-          </div>
+          <div className={styles.name}>{data.scaleTableName}</div>
           <div
             className={styles.status}
             style={{ color: item?.color, background: item?.bgColor }}
           >
             {data.progressStatus}
           </div>
+        </div>
+        <div className={styles.name} style={{ marginTop: 5 }}>
+          {data.userName}
+          &nbsp;
+          <img
+            className={styles.gender}
+            src={data.gender === 1 ? male : female}
+            alt=""
+          />
         </div>
         <div style={{ marginTop: 15 }}>
           <div className={styles.kv}>
@@ -278,6 +286,9 @@ function Card(data, cb, choose) {
         </div>
         <div className={styles.line}></div>
         <div className={styles.btnBox}>
+          <div className="rbtn-fill" onClick={(e) => onCard("detail", e)}>
+            查看详情
+          </div>
           <div className="rbtn-fill" onClick={chooseFn}>
             查看报告
           </div>
@@ -287,7 +298,7 @@ function Card(data, cb, choose) {
             <div
               className="rbtn"
               style={{ marginRight: 10 }}
-              onClick={() => onCard("edit")}
+              onClick={(e) => onCard("edit", e)}
             >
               填写报告
             </div>
@@ -296,7 +307,7 @@ function Card(data, cb, choose) {
             <div
               className="rbtn"
               style={{ marginRight: 10 }}
-              onClick={() => onCard("audit")}
+              onClick={(e) => onCard("audit", e)}
             >
               审核报告
             </div>
@@ -305,7 +316,7 @@ function Card(data, cb, choose) {
             <div
               className="rbtn"
               style={{ marginRight: 10 }}
-              onClick={() => onCard("send")}
+              onClick={(e) => onCard("send", e)}
             >
               发送报告
             </div>
