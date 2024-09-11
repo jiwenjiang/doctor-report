@@ -8,9 +8,11 @@ import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import {
   Button,
+  Checkbox,
   DatetimePicker,
   Dialog,
   Form,
+  ImagePreview,
   Input,
   NavBar,
   Notify,
@@ -32,6 +34,7 @@ function App() {
   const id = GetQueryString("id");
   const editable = GetQueryString("editable");
   const [data, setData] = useState<any>({});
+  const [initialValues, setInitialValues] = useState<any>({});
   const [form1] = Form.useForm();
   const [form2] = Form.useForm();
   const [show1, setShow1] = useState<any>(false);
@@ -42,6 +45,7 @@ function App() {
   const [showVideo, setShowVideo] = useState(false);
   const [currentVideo, setCurrentVideo] = useState(null);
   const [auditShow, setAuditShow] = useState(false);
+  const [unPass, setUnPass] = useState(false);
 
   const stage = Form.useWatch("stage", form1);
 
@@ -65,6 +69,7 @@ function App() {
         optionSn: c.optionSn,
       })),
       draft: true,
+      videoStatus: unPass ? 1 : 0,
     };
     const res = await request({
       url: "/scale/record/updateRemark",
@@ -83,6 +88,11 @@ function App() {
       id,
       ...result,
       draft: true,
+      positionAndSportAbnormal: questions.map((c) => ({
+        questionSn: c.sn || c.questionSn,
+        optionSn: c.optionSn,
+      })),
+      videoStatus: unPass ? 1 : 0,
     };
     await request({
       url: "/scale/record/updateRemark",
@@ -104,15 +114,23 @@ function App() {
       },
     });
     setData(res.data);
-    if (res.data.result?.cerebralPalsyResult?.positionAndSportAbnormal) {
-      setOriQes(res.data.result?.cerebralPalsyResult?.positionAndSportAbnormal);
+    const cerebralPalsyResult = res.data.result?.cerebralPalsyResult;
+    if (cerebralPalsyResult?.positionAndSportAbnormal) {
+      setOriQes(cerebralPalsyResult?.positionAndSportAbnormal);
       setQuestions(
-        res.data.result?.cerebralPalsyResult?.positionAndSportAbnormal?.map(
-          (c) => ({ ...c, options: ops })
-        )
+        cerebralPalsyResult?.positionAndSportAbnormal?.map((c) => ({
+          ...c,
+          options: ops,
+        }))
       );
+
+      form2.setFieldsValue({
+        obviouslyBehind: cerebralPalsyResult.obviouslyBehind,
+        tendencyBehind: cerebralPalsyResult.tendencyBehind,
+        suggests: cerebralPalsyResult.suggests?.[0],
+      });
     }
-    console.log("🚀 ~ getDetail ~ res:", res);
+    setUnPass(res.data?.result?.cerebralPalsyResult?.videoStatus === 1);
   };
 
   useEffect(() => {
@@ -123,7 +141,9 @@ function App() {
     setShow1(true);
     form1.setFieldsValue({
       ...data.result.gmsResult,
-      nextReserve: new Date(data.result.gmsResult.nextReserve),
+      nextReserve: data.result.gmsResult.nextReserve
+        ? new Date(data.result.gmsResult.nextReserve)
+        : null,
     });
   };
   const open2 = async () => {
@@ -186,6 +206,25 @@ function App() {
         console.log("cancel");
       }
     }
+    if (type === "preAudit") {
+      if (data.scaleTableCode === 13 && !data?.result?.gmsResult?.stage) {
+        Notify.show({ type: "danger", message: "请进行评估" });
+        return;
+      }
+      try {
+        await Dialog.confirm({
+          title: "提交审核",
+          message: "是否提交审核？",
+        });
+        await request({
+          url: "/scale/report/submitReview",
+          data: { id: data.id },
+        });
+        getDetail();
+      } catch (error) {
+        console.log("cancel");
+      }
+    }
   };
 
   const confirmAudit = async (params) => {
@@ -198,6 +237,12 @@ function App() {
       getDetail();
       setAuditShow(false);
     }
+  };
+
+  const openImg = (url) => {
+    ImagePreview.open({
+      images: [url],
+    });
   };
 
   return (
@@ -281,7 +326,13 @@ function App() {
                         <PlayCircleO className="center" />
                       </div>
                     )}
-                    {c.type === 1 && <img src={c.url}></img>}
+                    {c.type === 1 && (
+                      <img
+                        className="ans-img"
+                        src={c.url}
+                        onClick={() => openImg(c.url)}
+                      ></img>
+                    )}
                   </div>
                 ))}
                 <div className="ans-mark">补充说明：{v.remark}</div>
@@ -355,25 +406,31 @@ function App() {
             <div className="linear-gradient"></div>
           </div>
           <div className="device-box">
-            <Form colon layout="vertical" form={form2} footer={null}>
-              <Form.Item
-                name="obviouslyBehind"
-                label="1.视频中表现出来有姿势运动"
-              >
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <Input disabled={!editable} placeholder="非必填，不填则无" />{" "}
-                  <span className="tip">明显落后</span>
-                </div>
-              </Form.Item>
-              <Form.Item
-                name="tendencyBehind"
-                label="2.视频中表现出来有姿势运动"
-              >
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <Input disabled={!editable} placeholder="非必填，不填则无" />{" "}
-                  <span className="tip">落后倾向</span>
-                </div>
-              </Form.Item>
+            <Form
+              colon
+              layout="vertical"
+              initialValues={initialValues}
+              form={form2}
+              footer={null}
+            >
+              <div className="form-item-box">
+                <Form.Item
+                  name="obviouslyBehind"
+                  label="1.视频中表现出来有姿势运动"
+                >
+                  <Input disabled={!editable} placeholder="非必填，不填则无" />
+                </Form.Item>
+                <span className="tip">明显落后</span>
+              </div>
+              <div className="form-item-box">
+                <Form.Item
+                  name="tendencyBehind"
+                  label="2.视频中表现出来有姿势运动"
+                >
+                  <Input disabled={!editable} placeholder="非必填，不填则无" />
+                </Form.Item>
+                <span className="tip">落后倾向</span>
+              </div>
               <Form.Item name="suggests" label="3.其他" className="other">
                 <Input disabled={!editable} placeholder="非必填，不填则无" />
               </Form.Item>
@@ -390,47 +447,55 @@ function App() {
           >
             返回
           </Button>
-          {[reportEnum.WEIPINGGU.value, reportEnum.BUTONGGUO.value].includes(
-            data.progressStatusCode
-          ) && (
-            <Button
-              round
-              type="primary"
-              style={{ width: "100px" }}
-              onClick={onFinish3}
-            >
-              保存
-            </Button>
-          )}
+          {auth.includes("SAVE_EDIT_REPORT") &&
+            [reportEnum.WEIPINGGU.value, reportEnum.BUTONGGUO.value].includes(
+              data.progressStatusCode
+            ) && (
+              <Button
+                round
+                type="primary"
+                style={{ width: "100px" }}
+                onClick={onFinish3}
+              >
+                保存
+              </Button>
+            )}
 
-          {[reportEnum.DAISHENHE.value].includes(data.progressStatusCode) && (
-            <Button
-              round
-              type="primary"
-              style={{ width: "100px" }}
-              onClick={() => operate("audit")}
-            >
-              审核报告
-            </Button>
-          )}
-          {[reportEnum.DAIFASONG.value].includes(data.progressStatusCode) && (
-            <Button
-              round
-              type="primary"
-              style={{ width: "100px" }}
-              onClick={() => operate("send")}
-            >
-              发送报告
-            </Button>
-          )}
-          {/* <Button
-            round
-            type="primary"
-            style={{ width: "100px" }}
-            onClick={shenhe}
-          >
-            提交审核
-          </Button> */}
+          {auth.includes("REVIEW_REPORT") &&
+            [reportEnum.DAISHENHE.value].includes(data.progressStatusCode) && (
+              <Button
+                round
+                type="primary"
+                style={{ width: "100px" }}
+                onClick={() => operate("audit")}
+              >
+                审核报告
+              </Button>
+            )}
+          {auth.includes("SEND_TO_USER") &&
+            [reportEnum.DAIFASONG.value].includes(data.progressStatusCode) && (
+              <Button
+                round
+                type="primary"
+                style={{ width: "100px" }}
+                onClick={() => operate("send")}
+              >
+                发送报告
+              </Button>
+            )}
+          {auth.includes("SUBMIT_REVIEW") &&
+            [reportEnum.WEIPINGGU.value, reportEnum.BUTONGGUO.value].includes(
+              data.progressStatusCode
+            ) && (
+              <Button
+                round
+                type="primary"
+                style={{ width: "100px" }}
+                onClick={() => operate("preAudit")}
+              >
+                提交审核
+              </Button>
+            )}
         </div>
         <Popup
           visible={showVideo}
@@ -593,7 +658,12 @@ function App() {
                     value={c.optionSn}
                   >
                     {c.options?.map((s) => (
-                      <Radio key={s.sn} name={s.sn} value={s.sn}>
+                      <Radio
+                        key={s.sn}
+                        name={s.sn}
+                        value={s.sn}
+                        disabled={unPass}
+                      >
                         {s.content}
                       </Radio>
                     ))}
@@ -603,6 +673,9 @@ function App() {
             ))}
           </div>
           <div className="bottom-box">
+            <Checkbox checked={unPass} onChange={setUnPass}>
+              视频拍摄不合格
+            </Checkbox>
             <Button
               round
               type="default"

@@ -5,6 +5,7 @@ import { Loading } from "react-vant";
 const Index = lazy(() => import("./pages/report/list"));
 const Login = lazy(() => import("./pages/user/login"));
 const ReportList = lazy(() => import("./pages/report/list"));
+const OrderList = lazy(() => import("./pages/order/list"));
 const ReportDetail = lazy(() => import("./pages/report/detail"));
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/reportList" element={<ReportList />} />
           <Route path="/reportDetail" element={<ReportDetail />} />
+          <Route path="/orderList" element={<OrderList />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

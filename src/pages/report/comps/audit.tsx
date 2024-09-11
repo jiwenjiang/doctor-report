@@ -5,7 +5,6 @@ import styles from "./audit.module.less";
 export default function App({ show, onClose, onConfirm }) {
   const [form] = Form.useForm();
   const result = Form.useWatch("result", form);
-  console.log("🚀 ~ App ~ result:", result);
 
   const onclose = () => {
     form.resetFields()

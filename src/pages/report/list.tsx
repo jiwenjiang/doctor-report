@@ -1,5 +1,6 @@
 import MineCenter from "@/comps/Mine";
 import VList from "@/comps/VList";
+import { reportBtnAuth } from "@/hooks/reportBtn";
 import { reportEnum } from "@/service/const";
 import request from "@/service/request";
 import { findItem } from "@/service/utils";
@@ -62,6 +63,7 @@ export default function App() {
   const [loadingText, setLoadingText] = useState("正在加载中");
   const navigate = useNavigate();
   const [row, setRow] = useState<any>({});
+  const auth = reportBtnAuth();
 
   const onLoad = () => {
     if (total.current > params.current.pageNo && !isLoading.current) {
@@ -190,9 +192,9 @@ export default function App() {
       </Tabs>
       <div>
         <VList
-          renderFn={(d) => Card(d, cb, toReport)}
+          renderFn={(d) => Card(d, cb, toReport, auth)}
           data={data}
-          itemSize={278}
+          itemSize={335}
           onLoad={onLoad}
           loadingText={loadingText}
         />
@@ -234,7 +236,7 @@ export default function App() {
   );
 }
 
-function Card(data, cb, choose) {
+function Card(data, cb, choose, auth) {
   const onCard = (type, e) => {
     cb?.(data, type, e);
   };
@@ -283,6 +285,31 @@ function Card(data, cb, choose) {
             <div className={styles.k}>检查日期</div>
             <div className={styles.v}>{data.created}</div>
           </div>
+          <div className={styles.kv}>
+            <div className={styles.k}>GMs</div>
+            <div className={styles.v}>{data.gmsResult ?? "--"}</div>
+          </div>
+          <div className={styles.kv}>
+            <div className={styles.k}>神经运动</div>
+            <div
+              className={styles.v}
+              style={{
+                color: `${
+                  data.haveAbnormalIterm === false
+                    ? "#00BF83"
+                    : data.haveAbnormalIterm
+                    ? "#FA541C"
+                    : ""
+                }`,
+              }}
+            >
+              {data.haveAbnormalIterm === false
+                ? "正常"
+                : data.haveAbnormalIterm
+                ? "有异常"
+                : "--"}
+            </div>
+          </div>
         </div>
         <div className={styles.line}></div>
         <div className={styles.btnBox}>
@@ -292,35 +319,38 @@ function Card(data, cb, choose) {
           <div className="rbtn-fill" onClick={chooseFn}>
             查看报告
           </div>
-          {[reportEnum.WEIPINGGU.value, reportEnum.BUTONGGUO.value].includes(
-            data.progressStatusByte
-          ) && (
-            <div
-              className="rbtn"
-              style={{ marginRight: 10 }}
-              onClick={(e) => onCard("edit", e)}
-            >
-              填写报告
-            </div>
-          )}
-          {[reportEnum.DAISHENHE.value].includes(data.progressStatusByte) && (
-            <div
-              className="rbtn"
-              style={{ marginRight: 10 }}
-              onClick={(e) => onCard("audit", e)}
-            >
-              审核报告
-            </div>
-          )}
-          {[reportEnum.DAIFASONG.value].includes(data.progressStatusByte) && (
-            <div
-              className="rbtn"
-              style={{ marginRight: 10 }}
-              onClick={(e) => onCard("send", e)}
-            >
-              发送报告
-            </div>
-          )}
+          {auth.includes("SAVE_EDIT_REPORT") &&
+            [reportEnum.WEIPINGGU.value, reportEnum.BUTONGGUO.value].includes(
+              data.progressStatusByte
+            ) && (
+              <div
+                className="rbtn"
+                style={{ marginRight: 10 }}
+                onClick={(e) => onCard("edit", e)}
+              >
+                填写报告
+              </div>
+            )}
+          {auth.includes("REVIEW_REPORT") &&
+            [reportEnum.DAISHENHE.value].includes(data.progressStatusByte) && (
+              <div
+                className="rbtn"
+                style={{ marginRight: 10 }}
+                onClick={(e) => onCard("audit", e)}
+              >
+                审核报告
+              </div>
+            )}
+          {auth.includes("SEND_TO_USER") &&
+            [reportEnum.DAIFASONG.value].includes(data.progressStatusByte) && (
+              <div
+                className="rbtn"
+                style={{ marginRight: 10 }}
+                onClick={(e) => onCard("send", e)}
+              >
+                发送报告
+              </div>
+            )}
         </div>
       </div>
     </div>

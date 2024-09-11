@@ -73,13 +73,40 @@ export const reportEnum = {
   YIWANCHENG: {
     label: "已完成",
     value: 21,
-    color: "#FA541C",
-    bgColor: "#FFF2E8",
+    color: "#00BF83",
+    bgColor: "#E2FFF8",
   },
   YIZUOFEI: {
     label: "已退费",
     value: 25,
     color: "#FA541C",
     bgColor: "#FFF2E8",
+  },
+};
+
+export const orderEnum = {
+  DAIZHIFU: {
+    label: "待支付",
+    value: 1,
+    color: "#FA541C",
+    bgColor: "#FFF2E8",
+  },
+  YIFUKUAN: {
+    label: "已付款",
+    value: 2,
+    color: "#49B9AD",
+    bgColor: "#E2FFF8",
+  },
+  YISHIYONG: {
+    label: "已使用",
+    value: 3,
+    color: "#00BF83",
+    bgColor: "#E2FFF8",
+  },
+  YIQUXIAO: {
+    label: "已取消",
+    value: 4,
+    color: "#606972",
+    bgColor: "#F5F7FB",
   },
 };
