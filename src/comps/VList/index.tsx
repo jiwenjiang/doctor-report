@@ -24,8 +24,7 @@ export default function VList({
   };
 
   useEffect(() => {
-    const h = document.body.offsetHeight - 100;
-    console.log("🚀 ~ useEffect ~ h:", h)
+    const h = document.body.offsetHeight - 144;
     setHeight(h);
   }, []);
 

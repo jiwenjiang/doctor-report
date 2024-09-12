@@ -10,12 +10,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
+  ImagePreview,
   Loading,
   NavBar,
   Overlay,
   Popup,
   Search,
   Tabs,
+  Tag,
 } from "react-vant";
 import Audit from "./comps/audit";
 import styles from "./list.module.less";
@@ -163,6 +165,12 @@ export default function App() {
     }
   };
 
+  const openImg = (url) => {
+    ImagePreview.open({
+      images: [url],
+    });
+  };
+
   return (
     <div className={styles.box}>
       <NavBar
@@ -194,7 +202,7 @@ export default function App() {
         <VList
           renderFn={(d) => Card(d, cb, toReport, auth)}
           data={data}
-          itemSize={335}
+          itemSize={327}
           onLoad={onLoad}
           loadingText={loadingText}
         />
@@ -204,12 +212,23 @@ export default function App() {
         destroyOnClose
         position="bottom"
         closeable
+        closeIcon={
+          <Tag size="large" round type="primary">
+            返回
+          </Tag>
+        }
         style={{ height: "100%" }}
         onClose={() => setPdf({ show: false, src: [] })}
       >
         <div style={{ paddingTop: 45, width: "100%", height: "auto" }}>
           {pdf?.src?.map((c, i) => (
-            <img key={i} src={c} width="100%" height="100%"></img>
+            <img
+              key={i}
+              src={c}
+              width="100%"
+              onClick={() => openImg(c)}
+              height="100%"
+            ></img>
           ))}
         </div>
       </Popup>
@@ -247,6 +266,15 @@ function Card(data, cb, choose, auth) {
 
   const item = findItem(reportEnum, data.progressStatusByte);
 
+  const gmsColor = (v) => {
+    if (!v) return "";
+    if (v === "正常 (F+)" || v === "正常（N）") {
+      return "#00BF83";
+    } else {
+      return "#FA541C";
+    }
+  };
+
   return (
     <div className={styles.cardBox}>
       <div className={styles.card}>
@@ -279,7 +307,7 @@ function Card(data, cb, choose, auth) {
           </div>
           <div className={styles.kv}>
             <div className={styles.k}>出生年月</div>
-            <div className={styles.v}>{data.id}</div>
+            <div className={styles.v}>{data.birthday}</div>
           </div>
           <div className={styles.kv}>
             <div className={styles.k}>检查日期</div>
@@ -287,7 +315,12 @@ function Card(data, cb, choose, auth) {
           </div>
           <div className={styles.kv}>
             <div className={styles.k}>GMs</div>
-            <div className={styles.v}>{data.gmsResult ?? "--"}</div>
+            <div
+              className={styles.v}
+              style={{ color: gmsColor(data.gmsResult) }}
+            >
+              {data.gmsResult ?? "--"}
+            </div>
           </div>
           <div className={styles.kv}>
             <div className={styles.k}>神经运动</div>
@@ -295,18 +328,21 @@ function Card(data, cb, choose, auth) {
               className={styles.v}
               style={{
                 color: `${
-                  data.haveAbnormalIterm === false
+                  data.haveAbnormalIterm === 2
                     ? "#00BF83"
-                    : data.haveAbnormalIterm
+                    : data.haveAbnormalIterm === 1 ||
+                      data.haveAbnormalIterm === 3
                     ? "#FA541C"
                     : ""
                 }`,
               }}
             >
-              {data.haveAbnormalIterm === false
-                ? "正常"
-                : data.haveAbnormalIterm
+              {data.haveAbnormalIterm === 2
+                ? "无异常"
+                : data.haveAbnormalIterm === 1
                 ? "有异常"
+                : data.haveAbnormalIterm === 3
+                ? "视频拍摄不合格"
                 : "--"}
             </div>
           </div>

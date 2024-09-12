@@ -1,13 +1,12 @@
 import request from "@/service/request";
 import { GetQueryString } from "@/service/utils";
-import loginBg from "@/static/imgs/login-bg.png";
+import loginBg from "@/static/imgs/login-bg.jpg";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input, Notify, Picker } from "react-vant";
 import styles from "./login.module.less";
 
 function App() {
-  const [isPsw, setIsPsw] = useState(true);
   const navigate = useNavigate();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
