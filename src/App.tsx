@@ -9,6 +9,10 @@ const OrderList = lazy(() => import("./pages/order/list"));
 const ReportDetail = lazy(() => import("./pages/report/detail"));
 
 function App() {
+  const isDev = import.meta.env.MODE === "development";
+
+  if (isDev) {
+  }
   return (
     <BrowserRouter>
       <Suspense

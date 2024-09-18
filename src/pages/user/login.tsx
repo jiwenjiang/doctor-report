@@ -12,7 +12,6 @@ function App() {
   const [password, setPassword] = useState("");
   const [columns, setColumns] = useState([]);
   const [organization, setOrganization] = useState<any>({});
-  
 
   const onFinish = async (values) => {
     const returnUrl = GetQueryString("returnUrl");
@@ -28,11 +27,11 @@ function App() {
     if (msg.success) {
       localStorage.user = JSON.stringify(msg.data.user);
       localStorage.token = msg.data.token;
-      if (returnUrl) {
-        window.location.href = returnUrl;
-      } else {
-        navigate("/reportList");
-      }
+      // if (returnUrl) {
+      //   window.location.href = returnUrl;
+      // } else {
+      navigate("/reportList");
+      // }
     }
   };
 

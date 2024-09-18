@@ -28,6 +28,7 @@
     "reactutils": "^5.10.0",
     "styled-components": "^5.3.5",
     "swr": "^1.1.2",
+    "vconsole": "^3.15.1",
     "video.js": "^8.17.3",
     "weixin-js-sdk": "^1.6.5"
   },
