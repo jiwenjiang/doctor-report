@@ -91,12 +91,17 @@ export default function App() {
     onClose();
   };
 
+  const search = () => {
+    params.current.pageNo = 1;
+    getList(true);
+  };
+
   return (
     <div className={styles.box}>
       <NavBar
         title="订单列表"
         onClickLeft={() => window.history.back()}
-        rightText={<MineCenter />}
+        rightText={<MineCenter reload={search} />}
       />
       <div className={styles.filterBox}>
         <div>

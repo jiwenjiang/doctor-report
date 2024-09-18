@@ -1,7 +1,7 @@
 import { Notify } from "react-vant";
 
-// const baseUrl = `https://platform-test.fushuhealth.com/recovery-web`; // 测试
-const baseUrl = `https://platform.fushuhealth.com/recovery-web`;
+const baseUrl = `https://platform-test.fushuhealth.com/recovery-web`; // 测试
+// const baseUrl = `https://platform.fushuhealth.com/recovery-web`;
 
 type httpType = {
   url: string;

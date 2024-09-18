@@ -141,6 +141,7 @@ export default function App() {
   };
 
   const search = () => {
+    params.current.pageNo = 1;
     setCondition({ ...condition, word: keyword });
   };
 
@@ -176,7 +177,7 @@ export default function App() {
       <NavBar
         title="报告列表"
         onClickLeft={() => window.history.back()}
-        rightText={<MineCenter />}
+        rightText={<MineCenter reload={search} />}
       />
       <Search
         showAction
@@ -202,7 +203,7 @@ export default function App() {
         <VList
           renderFn={(d) => Card(d, cb, toReport, auth)}
           data={data}
-          itemSize={327}
+          itemSize={357}
           onLoad={onLoad}
           loadingText={loadingText}
         />
@@ -297,6 +298,10 @@ function Card(data, cb, choose, auth) {
           />
         </div>
         <div style={{ marginTop: 15 }}>
+          <div className={styles.kv}>
+            <div className={styles.k}>开单医生</div>
+            <div className={styles.v}>{data.doctorName}</div>
+          </div>
           <div className={styles.kv}>
             <div className={styles.k}>编号</div>
             <div className={styles.v}>{data.id}</div>

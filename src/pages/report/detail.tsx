@@ -153,10 +153,10 @@ function App() {
         data: { code: 9 },
       });
       setQuestions(
-        res.data?.map((v, i) => ({ ...v, questionSn: i + 1, optionSn: 1 }))
+        res.data?.map((v, i) => ({ ...v, questionSn: i + 1, optionSn: null }))
       );
       setOriQes(
-        res.data?.map((v, i) => ({ ...v, questionSn: i + 1, optionSn: 1 }))
+        res.data?.map((v, i) => ({ ...v, questionSn: i + 1, optionSn: null }))
       );
     }
     setShow2(true);

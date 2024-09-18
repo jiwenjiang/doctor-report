@@ -1,7 +1,7 @@
-import React, { useEffect, useImperativeHandle, useRef } from 'react';
-import videojs from 'video.js';
-import 'video.js/dist/video-js.css';
-import './reset-video.css';
+import React, { useEffect, useImperativeHandle, useRef } from "react";
+import videojs from "video.js";
+import "video.js/dist/video-js.css";
+import "./reset-video.css";
 
 export default React.forwardRef(function FushuVideo(props: any, ref) {
   const videoNode = useRef(null);
@@ -25,10 +25,10 @@ export default React.forwardRef(function FushuVideo(props: any, ref) {
       controls: true,
       ...props,
     });
-    console.log('🚀 ~ file: index.tsx ~ line 19 ~ useEffect ~ props', props);
+    console.log("🚀 ~ file: index.tsx ~ line 19 ~ useEffect ~ props", props);
     return () => {
       // player.current.pause();
-      console.log('destroy', player.current);
+      console.log("destroy", player.current);
     };
   }, []);
 
@@ -36,9 +36,17 @@ export default React.forwardRef(function FushuVideo(props: any, ref) {
     <>
       <div data-vjs-player>
         <video
-          style={{ width: props.width ?? '100vw', maxHeight: '50vh' }}
+          style={{
+            width: props.width ?? "100vw",
+            maxHeight: "100vh",
+            height: "100vh",
+            objectFit: "contain",
+          }}
           ref={videoNode}
-          className="video-js vjs-big-play-centered"></video>
+          x5-playsinline
+          playsInline
+          className="video-js vjs-big-play-centered"
+        ></video>
       </div>
     </>
   );
